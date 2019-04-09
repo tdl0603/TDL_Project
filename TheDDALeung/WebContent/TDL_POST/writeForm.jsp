@@ -7,11 +7,8 @@
 	<center>
 		<!-- "onsubmit="return 호출할함수명()"> -->
 		<form method="post" name="writeform" action="/TDL/TDL_POST_writePro.do"
-			onsubmit="return writeSave()">
-			
+			onsubmit="return writeSave()">		
 			<input type="hidden" name="TP_num" value="${TP_num }">
-
-
 			<div class="container">
 				<div class="row">
 					<table class="table table-striped"
@@ -36,18 +33,15 @@
 					</tbody>
 				</table>
 				<table>
-
 						<tr>
 							<td colspan=2 bgcolor="#b0e0e6" align="center"><input
 								type="submit" value="글쓰기" rows="13"> <input type="reset"
 								value="다시작성"> <input type="button" value="목록보기"
 								OnClick="window.location='/TDL/TDL_POST_list.do'"></td>
-						</tr>
-						
+						</tr>					
 					</table>
 				</div>
 			</div>
-
 		</form>
 		<img src="TDL_POST/bottom.png"/>
 		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>

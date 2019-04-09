@@ -1,8 +1,0 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"
-    import="tdl_Comment.*"%>
-    
-<%
-	//response.sendRedirect("list.jsp");
-%>
-<meta http-equiv="Refresh" content="0;url=/TDL/TDL_POST_content.do">

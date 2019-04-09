@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 //추가
 import dbc.*;
 import tdl_Comment.*;
-import java.sql.Timestamp;//추가할 부분(시간)
 
 public class WriteProAction implements CommandAction {
 
@@ -15,9 +14,7 @@ public class WriteProAction implements CommandAction {
 	System.out.println("actionComment WriteProAction 시작!");
 		//한글처리	
 		request.setCharacterEncoding("utf-8");
-		//BoardDTO -> Setter Method(5)+hidden (4)
-		//BoardDATO 객체 필요
-		TDLCommentDTO articleC=new TDLCommentDTO();
+		TDLCommentDTO articleC=new TDLCommentDTO();	
 		
 		System.out.println("TPC_num 받아오는 값 -> "+request.getParameter("TP_num"));
 		int TPC_ref=1,TPC_step=0,TPC_level=0;//writePro.jsp
@@ -34,7 +31,7 @@ public class WriteProAction implements CommandAction {
 
 		
 		TDLCommentDAO dbPro=new TDLCommentDAO();
-		dbPro.insertArticle(articleC);
+		dbPro.insertArticle(articleC);  // tdl_Comment 의 insertArticle 호출
 		//response.sendRedirect("http://localhost:8090/JspBoard2/list.do");
 		return "/TDL_COMMENT/writePro.jsp"; // "/index.jsp"
 	}

@@ -49,6 +49,25 @@ public class TDLCommentDAO { //MemberDAO
 		return x;
 	}
 	
+
+	// 작성일 구하기 ---------------------------------------------------------------------------------------------------------
+	public String TPC_date() {
+		System.out.println("================ TDLPost  - getTP_date() 시작");
+		String SQL = "SELECT NOW()";
+		try {
+			PreparedStatement pstmt = con.prepareStatement(SQL);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				return rs.getString(1);
+			}
+		}catch(Exception e) {
+			System.out.print("TDLPostDAO getTP_date() 에러유발  ->");
+			e.printStackTrace();
+		}
+		System.out.println("================ TDLPost  - getTP_date() 끝");
+		return ""; // 데이터베이스 오류
+	}
+	
 	
 	//2.글목록보기에 대한 메서드 구현->레코드가 한개이상=>한 페이지당 10개씩 끊어서 보여준다.
 	//1.레코드의 시작번호  2.불러올 레코드의 갯수
@@ -149,77 +168,60 @@ public class TDLCommentDAO { //MemberDAO
 	
 	
 	//---------------게시판의 글쓰기 및 글 답변달기-------------------------------------------------------------------------
-	//insert into board values(?,,,
-	public void insertArticle(TDLCommentDTO article) {//~(MemberDTO mem)
+	//댓글 저장하기 
+	public void insertArticle(TDLCommentDTO articleC) {//~(MemberDTO mem)
 		
 		//1.article -> 신규글인지 답변글인지 구분
-		int TPC_num=article.getTPC_num();//0(신규글인지) 0이 아닌 경우(답변글)
-		int TPC_ref=article.getTPC_ref();
-		int TPC_step=article.getTPC_step();
-		int TPC_level=article.getTPC_level();
+		int TPC_num=articleC.getTPC_num();//자유게시판 번호 
+		int TPC_ref=articleC.getTPC_ref();
+		int TPC_step=articleC.getTPC_step();
+		int TPC_level=articleC.getTPC_level();
 		//테이블에 입력할 게시물 번호를 저장할 변수
 		int number =0;
-		System.out.println("TDLCommentDAO -> insertArticle 메서드의 내부의 num : "+TPC_num);
+		System.out.println("TDLCommentDAO -> insertArticle 메서드의 내부의 TPC_num : "+TPC_num);
 		System.out.println("ref : "+TPC_ref+",step : "+TPC_step+"level : "+TPC_level);
-		TDLPostDTO TD= new TDLPostDTO();
-		TD.getTP_num();
 		
+	//
 		try {
 			con=pool.getConnection();
-			sql="select max(TPC_num) from TDL_POST_COMMENT";//최대값+1=실제 저장할 게시물번호
+			System.out.println("insertArticle의 con=>"+con);
+			sql="select count(*) from TDL_POST_COMMENT where TPC_num=?";//매개변수 TPC_num은 게시물번호.
+			System.out.println("sql 까지는 나옴");
 			pstmt=con.prepareStatement(sql);
+			System.out.println("pstmt=>"+pstmt);
+			pstmt.setInt(1, articleC.getTPC_num()); // 해당 게시물안에 있는 댓글의 수를 구한다. -> TPC_ref 의 저장할 값 
+			System.out.println("TDLCommentDAO insertArticle(sql) -> "+sql);
 			rs=pstmt.executeQuery();
-			if(rs.next()) {
+			System.out.println("rs=>"+rs);
+			if(rs.next()) {// 만약 있다면 총 수+1을 해서 ref값에 저장. 5개가있다면 5+1=6. 즉 6이 저장됨
 				number=rs.getInt(1)+1;
-			}else {//맨 처음에 레코드가 한개라도 없다면 
+			}else {//맨 처음에 레코드가 한개라도 없다면 첫 댓글의 번호 1번
 				number=1;
-				
 			}
-			//만약에 답변글인경우
-		
-			//만약에 답변글인경우
-			if(TPC_num!=0) {
-				//같은 그룹번호를 가지고 있으면서 나보다 step값이 큰 놈을 찾아서 그 step증가
-				sql="update TDL_POST_COMMENT set TPC_step=TPC_step+1 where TPC_ref=? and TPC_step > ?";
-				pstmt=con.prepareStatement(sql);
-				pstmt.setInt(1,TPC_ref);
-				pstmt.setInt(2,TPC_step);
-				int update=pstmt.executeUpdate();
-				System.out.println("댓글수정유무(update) : "+update);//1 or 0
-				//답변글
-				TPC_step=TPC_step+1;
-				TPC_level=TPC_level+1;
-				
-			}else {//num=0인 경우이기에 신규글임을 알 수가 있다.
-				TPC_ref=number;
-				TPC_step=0;
-				TPC_level=0;
-			}
-			int TPC_good = 0;
+			int TPC_good = 0; //처음 생성되는 댓글에는 좋아요와 싫어요는 0이 부여
 			int TPC_bad = 0;
 			
-			////////////////////////////로그인 만들면 수정할 것 아이디값으로 넣을것
-			String name ="test";
+			String name ="test"; //로그인 만들면 수정할 것 아이디값으로 넣을것
 		
 			// TPC_addr 값은 자유게시물번호(TPC_num)+댓글번호(TPC_ref)+댓글깊이(댓글의 댓글인지 구분 TPC_level)
-			String addr = Integer.toString(TPC_num)+"c"+Integer.toString(TPC_ref)+"c"+Integer.toString(TPC_level);
+			String addr =Integer.toString(TPC_num)+"c"+number+"c"+Integer.toString(TPC_level);
 			
 			//12개 -> num,reg_date,reaconut(생략 -> default -> sysdate.now() <- mysql
 			sql="insert into TDL_POST_COMMENT(TPC_addr,TPC_ref,TPC_num,TPC_id,TPC_content,";
 			sql+="TPC_date,TPC_step,TPC_level,TPC_good,TPC_bad)values(?,?,?,?,?,?,?,?,?,?)";
 			pstmt=con.prepareStatement(sql);
-			pstmt.setString(1,article.getTPC_addr());// 일련번호
-			pstmt.setInt(2,article.getTPC_ref());// 글그룹번호
-			pstmt.setInt(3,article.getTPC_num());//자유게시물 번호 증가
-			pstmt.setString(4,name);
-			pstmt.setString(5, article.getTPC_content());//글내용
-			pstmt.setString(6, article.getTPC_date());//웹에서 계산해서 저장
-			pstmt.setInt(7, TPC_step);//pstmt.setInt(6,article,getRef());(X)
+			pstmt.setString(1,addr);// 일련번호
+			pstmt.setInt(2,number);// 글그룹번호
+			pstmt.setInt(3,TPC_num);//자유게시물 번호 증가
+			pstmt.setString(4,name); // 작성자 아이디
+			pstmt.setString(5, articleC.getTPC_content());//글내용
+			pstmt.setString(6, TPC_date());//현재 시간 저장
+			pstmt.setInt(7, TPC_step);//댓글의 댓글 번호 표시
 			pstmt.setInt(8,TPC_level);//0
 			pstmt.setInt(9, TPC_good);//0
-			pstmt.setInt(10,TPC_bad);
+			pstmt.setInt(10,TPC_bad);//0
 			int insert=pstmt.executeUpdate();
-			System.out.println("게시판의 글쓰기 성공유무(insert) : "+insert );
+			System.out.println("TDLCommentDAO -> 댓글의 글쓰기 성공유무(insert) : "+insert );
 		}catch(Exception e) {
 			System.out.println("TDLCommentDAO -> insertArticle()메서드 에러유발 : "+e);
 			e.printStackTrace();
@@ -318,12 +320,35 @@ public class TDLCommentDAO { //MemberDAO
 				
 			}
 		}catch(Exception e) {
-			System.out.println("TDL_POST_COMMENT -> getArticle()메서드 에러유발"+e);
+			System.out.println("TDL_POST_COMMENT -> getArticle()메서드 에러유발");
+			e.printStackTrace();
 		}finally {
 			pool.freeConnection(con,pstmt,rs);
 		}
 		return article;
 	}
+	
+	public int commentNum(int TP_num) {
+		
+		try {
+			con=pool.getConnection();
+			
+			sql="select TPC_num from TDL_POST_COMMENT where TPC_addr=?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1,TP_num);
+			rs=pstmt.executeQuery();	
+			if(rs.next()) {
+				TP_num = rs.getInt(1);
+			}
+		}catch(Exception e) {
+			System.out.println("TDLCommentDAO -> GetArticle()메서드 에러유발"+e);
+		}finally {
+			pool.freeConnection(con,pstmt,rs);
+		}
+		return TP_num;
+	}
+		
+
 	
 	// 작성일 구하기 ---------------------------------------------------------------------------------------------------------
 		public String getTP_date() {
@@ -417,28 +442,39 @@ public class TDLCommentDAO { //MemberDAO
 	
 	
 	//글 삭제시켜주는 메서드 -> 회원탈퇴(삭제)=>암호를 물어본다.=> deleteArticle	
-	public int deleteArticle(String TPC_addr) { 
+	public int deleteAction(String addr) { 
 		
 	
 		int x=-1;//게시물의 수정성공유무
-		
-		try {
-					con=pool.getConnection();
-			
-					sql="delete from TDL_POST_COMMENT where TPC_addr=?";
-					pstmt=con.prepareStatement(sql);
-					pstmt.setString(1, TPC_addr);
-					int delete=pstmt.executeUpdate();
-					System.out.println("TDLCommentDAO -> 게시판의 글삭제 성공유무(delete) : "+delete);//1성공
-					x=1;
-			
-		}catch(Exception e) {
-			System.out.println("TDLCommentDAO -> deleteArticle()메서드 에러유발 : "+e);
-		}finally {
-			pool.freeConnection(con,pstmt,rs);//암호를 찾기 때문에
-		}
-		return x;
 	
 		
+		try {
+			con=pool.getConnection();
+			System.out.println("deleteAction의 con=>"+con);
+			sql="delete from TDL_POST_COMMENT where TPC_addr=?";//매개변수 TPC_num은 게시물번호.
+			pstmt=con.prepareStatement(sql);
+			pstmt.setString(1,addr); // 해당 게시물안에 있는 댓글의 수를 구한다. -> TPC_ref 의 저장할 값 
+			System.out.println("TDLCommentDAO deleteAction(sql) -> "+sql);
+			int delete=pstmt.executeUpdate();
+			System.out.println("rs=>"+rs);	
+			
+			}catch(Exception e) {
+				System.out.println("TDLCommentDAO - deleteAction() 에러 ->");
+				e.printStackTrace();
+				return x;//오류시 -1출력
+			}finally {
+				pool.freeConnection(con,pstmt,rs);
+			}
+		x=1;
+		System.out.println("댓글삭제 성공"+x);
+		return x;//성공시 1출력
 	}
 }
+		
+		
+		
+		
+		
+		
+		
+		

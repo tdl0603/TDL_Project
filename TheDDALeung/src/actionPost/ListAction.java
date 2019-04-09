@@ -37,7 +37,7 @@ public class ListAction implements CommandAction {
 			}else {
 				articleList=Collections.EMPTY_LIST;//아무것도 없는 빈 list객체 반환
 			}
-			
+
 		//2.request객체에 저장
 			request.setAttribute("search", search);//검색분야
 			request.setAttribute("searchtext", searchtext);//검색어
