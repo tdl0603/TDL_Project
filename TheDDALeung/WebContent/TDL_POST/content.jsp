@@ -1,6 +1,7 @@
 <%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
 <jsp:include page="top.jsp"/>
 <div class="container">
 		<div class="row">
@@ -93,7 +94,7 @@
 				-->
 				
 		<!--   String addr =Integer.toString(TPC_num)+"c"+countC+"c"+0; // 댓글일련번호를 댓글출력시 부여해서 삭제시 그 번호로 삭제하기	 -->
-					<c:set var="countC" value="${countC}"/>
+					<c:set var="countC" value="1"/>
 					<c:set var="number" value="${pgListC.number}" />
 					<c:forEach var="articleC" items="${articleListC}">
 						<tr>
@@ -110,16 +111,16 @@
 									<br> ${articleC.TPC_date.substring(0,4)}년
 											${articleC.TPC_date.substring(5,7)}월
 											${articleC.TPC_date.substring(8,10) }일 
-											${articleC.TPC_date.substring(11,19) } 작성 													 
-						<td><br>&nbsp;<br>	&nbsp;<br>&nbsp;<br> 				 		 	
-							<a onclick="return confirm('좋아요 하시겠습니까?')" >좋아요</a> <span style="color: green;">(좋아요:0)</span>
-						  	<a onclick="return confirm('싫어요 하시겠습니까?')" >싫어요</a><span style="color: red;">(싫어요: 0)</span>
+											${articleC.TPC_date.substring(11,19) } 작성 <br>													 
+					<!-- 	<td><br>&nbsp;<br>	&nbsp;<br>&nbsp;<br> 		 -->		 		 	
+							<a id="like">좋아요</a> <span style="color: green;">(좋아요:0)</span>
+						  	<a id="bad">싫어요</a><span style="color: red;">(싫어요: 0)</span>
 						  		<form  method="post" action="/TDL/TC_delete.do">
 						  			<input type="hidden" name="TPC_num" value="${articleC.TPC_num}">
 						  			<input type="hidden" name="countC" value="${countC}">
 						  			<input type="submit" value="글삭제"></a>
 						  		</form>
-						  	<c:set var="countC" value="${countC-1}" />
+						  	<c:set var="countC" value="${countC+1}" />
 						  	
 							</td>												  
 											  				
@@ -163,6 +164,33 @@
 	</div>
 </div>
 
+<script>
+$(function(){ 
+	
+/* 좋아요기능 토글 -> 좋아요 -> 좋아요 취소 -> 좋아요 */
+	$('#like').click(function(){
+			var like="좋아요"
+			alert(like)
+		if($('#like').text()==like){
+			$('#like').text("좋아요 취소") 
+		}else{
+			$('#like').text("좋아요") 
+		}	
+	})//like함수 닫기
+	
+/* 싫어요기능 토글 */
+	$('#bad').click(function(){
+		var bad="싫어요"
+		alert(bad)
+	if($('#bad').text()==bad){
+		$('#bad').text("싫어요 취소") 
+	}else{
+		$('#bad').text("싫어요") 
+	}	
+})//bad함수 닫기
+	
+})
 
+</script>
 
 <jsp:include page="bottom.jsp"/>

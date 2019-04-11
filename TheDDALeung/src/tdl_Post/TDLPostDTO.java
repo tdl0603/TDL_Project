@@ -7,14 +7,21 @@ public class TDLPostDTO {
 	private String TP_id; //유저 아이디
 	private String TP_date;// 작성일
 	private String TP_content; //글 내용
+	private int TP_readcount;// 조회수
 	
 /*
- TP_num,TP,title,TP_id,TP_date,TP_content
+ TP_num,TP,title,TP_id,TP_date,TP_content,TP_readcount
   
   
  */
 	
 	
+	public int getTP_readcount() {
+		return TP_readcount;
+	}
+	public void setTP_readcount(int tP_readcount) {
+		TP_readcount = tP_readcount;
+	}
 	public int getTP_num() {
 		return TP_num;
 	} 

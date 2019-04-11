@@ -28,11 +28,12 @@
 	
 			<table class="table table-striped" style="text-align: center; border: 1px solid #dddddd">
 				<thead>
-					<tr>
-						<th style="background-color: #eeeeee; text-align: center;">글번호</th>
+					<tr> 
+						<th style="background-color: #eeeeee; text-align: center;">글번호</th>  
 						<th style="background-color: #eeeeee; text-align: center;">글제목</th>
-						<th style="background-color: #eeeeee; text-align: center;">작성자</th>
+						<th style="background-color: #eeeeee; text-align: center;">작성자</th> 
 						<th style="background-color: #eeeeee; text-align: center;">작성일</th>
+						<th style="background-color: #eeeeee; text-align: center;">조회수</th>
 					</tr>
 				</thead>
 				<!-- 실질적으로 레코드를 출력시켜주는 부분  
@@ -51,6 +52,7 @@
 						</td>
 					
 						<td>${article.TP_date.substring(0,10)}</td>
+						<td>${article.TP_readcount }</td>
 					</tr>
 				</c:forEach>
 			</table>

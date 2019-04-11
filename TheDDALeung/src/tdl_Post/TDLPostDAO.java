@@ -318,6 +318,13 @@ public class TDLPostDAO {
 			
 			try {
 				con=pool.getConnection();
+				sql="update TDL_POST set TP_readcount = TP_readcount+1 where TP_num=?";
+				pstmt=con.prepareStatement(sql);
+				pstmt.setInt(1,TP_num);
+				int update=pstmt.executeUpdate();
+				System.out.println("TDLPOST - getArticle 조회수 증가유무(update) : "+update);
+				
+				con=pool.getConnection();
 				
 				sql="select * from TDL_POST where TP_num=?";
 				pstmt=con.prepareStatement(sql);
@@ -434,6 +441,7 @@ public class TDLPostDAO {
 			article.setTP_id(rs.getString("TP_id"));// 유저아이디
 			article.setTP_date(rs.getString("TP_date"));// 작성일
 			article.setTP_content(rs.getString("TP_content")); //자유게시판 글 내용
+			article.setTP_readcount(rs.getInt("TP_readcount"));//조회수
 			return article;
 		}
 		
